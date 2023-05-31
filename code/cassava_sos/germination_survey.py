@@ -54,7 +54,11 @@ def addGerminationVersionInfo(data):
             return 2
         
     # load planing date information for all farms/ # change later
-    planting_date = pd.read_csv("output/cassava_sos_planting_survey.csv")
+    try:
+        planting_date = pd.read_csv("output/cassava_sos_planting_survey.csv")
+    except:
+        os.system("python3 code/cassava_sos/planting_survey.py")
+        planting_date = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
     # standardize ID
     data["farm_id"] =data["farm_id"].apply(standardizeFarmID); planting_date["farm_id"] = planting_date["farm_id"].apply(standardizeFarmID)
