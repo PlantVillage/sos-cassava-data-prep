@@ -3,3 +3,7 @@ code/cassava_sos/main.py is the main progrom. This file will run the other scrip
 
 # output
 The output csv files will be saved in the output folder
+
+# Execution
+Run the 
+''' python3 code/cassava_sos/main.py '''
