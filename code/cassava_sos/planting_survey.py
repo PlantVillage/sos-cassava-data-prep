@@ -31,7 +31,7 @@ def downloadFiles(form_url):
 
 def addAgroEcologicalZones(data):
     # Read shapefile
-    kenya_aez = gpd.read_file("/Users/edwardamoah/Documents/GitHub/cetcil_data_analysis/cetcil/JupyterCode/data/static/kenya_aez/Kenya_AgroEcolZones.shp")
+    kenya_aez = gpd.read_file("input/kenya_aez/Kenya_AgroEcolZones.shp")
 
     gdf = gpd.GeoDataFrame( data, geometry= gpd.points_from_xy(data['location-Longitude'], data['location-Latitude']))
 

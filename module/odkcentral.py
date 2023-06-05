@@ -13,7 +13,7 @@ def getBearerToken(url, auth):
 
 
 # Replace auth with personal authentifications
-file = open('/Users/edwardamoah/Documents/GitHub/cetcil_data_analysis/cetcil/JupyterCode/notebooks/credentialPV.json') # json file with password and username
+file = open('module/credential.json') # json file with password and username
 auth = json.load(file)
 
 sessions_url = "https://opendatakit.plantvillage.psu.edu/v1/sessions"

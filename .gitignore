@@ -1,4 +1,5 @@
 venv
-odk_temp_download
+odk_temp_download/*
 test
 output/*
+module/credentials.json
