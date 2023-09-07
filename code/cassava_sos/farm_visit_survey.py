@@ -173,10 +173,13 @@ def renameColumns(data):
 def preProcessFarmData(data):
     # generate farm id
     def getUniqueFarmID(county, field_id):
-        if field_id < 10:
-            return f"{county}:0{field_id}"
+        try:
+            if field_id < 10:
+                return f"{county.lower()}:0{int(field_id)}"
 
-        return f"{county}:{field_id}"
+            return f"{county.lower()}:{int(field_id)}"
+        except:
+            return "Unknown"
     
     # enable the date format
     data['date']= pd.to_datetime(data['date'])
@@ -245,6 +248,42 @@ def preProcessPlotData(data):
                     data2 = data2._append(temp_df)
 
     return data2 
+
+
+def addSurveyVersion(dt):
+    planting_date = pd.read_csv("output/cassava_sos_planting_survey.csv")
+
+    def standardizeFarmID(farm_id):
+        return farm_id.lower()
+
+    # standardize ID
+    dt["farm_id"] =dt["farm_id"].apply(standardizeFarmID)
+    planting_date["farm_id"] = planting_date["farm_id"].apply(standardizeFarmID)
+
+    dt1 = planting_date[["farm_id", "planting_date"]].merge(dt, on="farm_id")
+
+    # date format surveys 
+    dt1["planting_date"] = pd.to_datetime(dt1["planting_date"])
+    dt1["survey_date"] = pd.to_datetime(dt1["date"])
+
+    def getDAP(survey_date, planting_date):
+        return (survey_date - planting_date).days
+
+    dt1["DAP"] = dt1.apply(lambda x: getDAP(x["survey_date"], x["planting_date"]), axis=1)
+
+    def getVersion(DAP):
+        if DAP in np.arange(41,51):
+            return "45_DAP"
+        elif DAP in np.arange(55,66):
+            return "60_DAP"
+        elif DAP in np.arange(70,81):
+            return "75_DAP"
+        elif DAP in np.arange(85,96):
+            return "90_DAP"
+    
+    dt1["survey_version"] = dt1["DAP"].apply(getVersion)
+
+    return dt1
 
     
     
@@ -388,9 +427,15 @@ def farmPlotVisitSurvey(data):
     # merge plot data with farm
     data["PARENT_KEY"] = data["KEY"]; data = data.merge(expanded_data, on="PARENT_KEY")
 
-    data.to_csv("output/cassava_sos_farm_visit_plot_survey.csv")
-    
-    #return data
+
+    # add farm_Id 
+    farm = pd.read_csv("output/cassava_sos_farm_visit_survey.csv")
+    data1 = farm[["KEY", "farm_id"]].merge(data)
+
+    ## survey version ###
+    data2 = addSurveyVersion(data1)
+
+    data2.to_csv("output/cassava_sos_farm_visit_plot_survey.csv")
 
 
 def main():
