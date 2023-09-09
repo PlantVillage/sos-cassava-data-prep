@@ -12,8 +12,8 @@ import odkcentral as odk
 
 def downloadFiles(form_url):
 
-    print("\nDownloading files ....\n")
-    
+    #print("\nDownloading files ....\n")
+
     folder = odk.downloadSubmissions(form_url)
 
     plots = pd.read_csv(f"{folder}/{os.listdir(folder)[0]}")
@@ -124,7 +124,7 @@ def addEcologicalZones(data):
 
 def preProcessData(data):
 
-    print("\nProcessing files ....\n")
+    #print("\nProcessing files ....\n")
 
     # add farmID
     def getFarmID(county, id):

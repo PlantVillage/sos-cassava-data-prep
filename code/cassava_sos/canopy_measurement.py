@@ -13,7 +13,7 @@ import odkcentral as odk
 
 def downloadFiles(form_url):
     '''Donwnload csv data ODK data using url'''
-    print("\nDownloading files ....\n")
+    #print("\nDownloading files ....\n")
 
     def getBlock(plot):
         if plot < 9:
@@ -138,7 +138,7 @@ def addEcologicalZones(data):
 
 def preProcessData(data):
 
-    print("\nProcessing files ....\n")
+    #print("\nProcessing files ....\n")
 
     # Create Farm ID
     def getFarmID(county, id):

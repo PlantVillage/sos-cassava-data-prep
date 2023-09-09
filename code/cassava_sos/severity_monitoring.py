@@ -12,7 +12,7 @@ import odkcentral as odk
 
 
 def downloadFiles(form_url):
-    print("\nDownloading files ....\n")
+    #print("\nDownloading files ....\n")
 
     folder = odk.downloadSubmissions(form_url)
 
@@ -113,7 +113,7 @@ def addEcologicalZones(data):
 
 def preProcessData(data):
 
-    print("\nProcessing files ....\n")
+    #print("\nProcessing files ....\n")
 
     # add farmID
     def getFarmID(county, id):
