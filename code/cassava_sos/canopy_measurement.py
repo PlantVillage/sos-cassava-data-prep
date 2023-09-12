@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-from common import farm_id
+from common import farm_id, farm_num_id
 
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
@@ -60,13 +60,8 @@ def addEcologicalZones(data):
         os.system("python code/cassava_sos/planting_survey.py")
         df = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
-    def getID(id):
-        return int(id.split(":")[1])
-
-    df["num_id"] = df["farm_id"].apply(getID)
-
+    df["num_id"] = df["farm_id"].apply(farm_num_id)
     df["farm_id"] = df.apply(lambda x: farm_id(x['farm_id'], x['num_id']), axis=1)
-
 
     # get zone data from planting report survey
     aez = {}
@@ -80,29 +75,28 @@ def addEcologicalZones(data):
 
     data["zones"] = data["farm_id"].apply(getAEZ)
 
-
-
     return data[[
-                'zones',
-                'farm_id',
-                'field_id',
-                'date',
-                'map',
-                'county',
-                'number',
-                'treatment',
-                'biochar',
-                'variety',
-                'block',
-                'num',
-                'stem_number',
-                'plant_height',
-                'canopy_height',
-                'stem_diameter',
-                'branches',
-                'nbl',
-                'hgt',
-                'nodes']]
+        'zones',
+        'farm_id',
+        'field_id',
+        'date',
+        'map',
+        'county',
+        'number',
+        'treatment',
+        'biochar',
+        'variety',
+        'block',
+        'num',
+        'stem_number',
+        'plant_height',
+        'canopy_height',
+        'stem_diameter',
+        'branches',
+        'nbl',
+        'hgt',
+        'nodes'
+    ]]
 
 
 

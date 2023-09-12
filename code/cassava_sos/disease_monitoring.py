@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-from common import farm_id
+from common import farm_id, farm_num_id
 
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
@@ -48,13 +48,8 @@ def addEcologicalZones(data):
         os.system("python code/cassava_sos/planting_survey.py")
         df = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
-    def getID(id):
-        return int(id.split(":")[1])
-
-    df["num_id"] = df["farm_id"].apply(getID)
-
+    df["num_id"] = df["farm_id"].apply(farm_num_id)
     df["farm_id"] = df.apply(lambda x: farm_id(x['farm_id'], x['num_id']), axis=1)
-
 
     # get zone data from planting report survey
     aez = {}
@@ -68,30 +63,32 @@ def addEcologicalZones(data):
 
     data["zones"] = data["farm_id"].apply(getAEZ)
 
-    return data[['date',
-                'map',
-                'county',
-                'field_id',
-                'plot_number',
-                'block_number',
-                'biochar_level',
-                'treanment_applied',
-                'variey',
-                'stand_count',
-                'total_net_count',
-                'cmd_incidence_net',
-                'cmd_incidence_out',
-                'cbsd_incidence_net',
-                'cbsd_incidence_out',
-                'plant_number',
-                'cmd_severity',
-                'cbsd_severity',
-                'stem_count',
-                'cmd_systemicity',
-                'cbsd_systemicity',
-                'farm_id',
-                'biochar',
-                'zones']]
+    return data[[
+        'date',
+        'map',
+        'county',
+        'field_id',
+        'plot_number',
+        'block_number',
+        'biochar_level',
+        'treanment_applied',
+        'variey',
+        'stand_count',
+        'total_net_count',
+        'cmd_incidence_net',
+        'cmd_incidence_out',
+        'cbsd_incidence_net',
+        'cbsd_incidence_out',
+        'plant_number',
+        'cmd_severity',
+        'cbsd_severity',
+        'stem_count',
+        'cmd_systemicity',
+        'cbsd_systemicity',
+        'farm_id',
+        'biochar',
+        'zones'
+    ]]
 
 
 
