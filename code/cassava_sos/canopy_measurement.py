@@ -7,6 +7,8 @@ import sys
 import numpy as np
 import pandas as pd
 
+from common import farm_id
+
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
 import odkcentral as odk
@@ -48,7 +50,6 @@ def downloadFiles(form_url):
 
 
 def addEcologicalZones(data):
-
     '''
     Add agro-ecological zone info to data based on farm_id
     '''
@@ -59,42 +60,12 @@ def addEcologicalZones(data):
         os.system("python code/cassava_sos/planting_survey.py")
         df = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
-    def getFarmID(county, id):
-        if "Baringo" in county:
-            if id < 10:
-                return f"BAR:0{id}"
-            return f"BAR:{id}"
-        elif "Siaya" in county:
-            if id < 10:
-                return f"SIA:0{id}"
-            return f"SIA:{id}"
-        elif "Homabay" in county:
-            if id < 10:
-                return f"HOM:0{id}"
-            return f"HOM:{id}"
-        elif "Bungoma" in county:
-            if id < 10:
-                return f"BUN:0{id}"
-            return f"BUN:{id}"
-        elif "Busia" in county:
-            if id < 10:
-                return f"BUS:0{id}"
-            return f"BUS:{id}"
-        elif "Migori" in county:
-            if id < 10:
-                return f"MIG:0{id}"
-            return f"MIG:{id}"
-        elif "Kilifi" in county:
-            if id < 10:
-                return f"KIL:0{id}"
-            return f"KIL:{id}"
-
     def getID(id):
         return int(id.split(":")[1])
 
     df["num_id"] = df["farm_id"].apply(getID)
 
-    df["farm_id"] = df.apply(lambda x: getFarmID(x['farm_id'], x['num_id']), axis=1)
+    df["farm_id"] = df.apply(lambda x: farm_id(x['farm_id'], x['num_id']), axis=1)
 
 
     # get zone data from planting report survey
