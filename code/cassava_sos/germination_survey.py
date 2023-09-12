@@ -1,10 +1,11 @@
-# import python modules
-import os
-import geopandas as gpd
-import pandas as pd
-import numpy as np
+#!/usr/bin/env python3
+
 import datetime
+import os
 import sys
+
+import numpy as np
+import pandas as pd
 
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
@@ -14,19 +15,21 @@ import odkcentral as odk
 # download odk central files
 def downloadFiles(form_url):
     folder = odk.downloadSubmissions(form_url)
-    #print(os.listdir(folder))
 
     # set path
-    data1_path = f"{folder}/{os.listdir(folder)[0]}"; data2_path = f"{folder}/{os.listdir(folder)[1]}"
+    data1_path = f"{folder}/{os.listdir(folder)[0]}"
+    data2_path = f"{folder}/{os.listdir(folder)[1]}"
 
     # load data
     data2 = pd.read_csv(data1_path); data1 = pd.read_csv(data2_path)
 
     # remove rejected and has issues surveys
-    data1 = data1[data1["ReviewState"] != 'rejected']; data1 = data1[data1["ReviewState"] != 'hasIssues'] 
+    data1 = data1[data1["ReviewState"] != 'rejected']
+    data1 = data1[data1["ReviewState"] != 'hasIssues'] 
 
     # merge data1 and data2 (i.e., the repeat or loop csv file)
-    data1["PARENT_KEY"] = data1["KEY"]; data3 =  data2.merge(data1, on="PARENT_KEY")
+    data1["PARENT_KEY"] = data1["KEY"]
+    data3 =  data2.merge(data1, on="PARENT_KEY")
 
     return data3 # return merged data, where each row is data for a plot
 

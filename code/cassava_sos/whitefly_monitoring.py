@@ -1,10 +1,11 @@
-# import python modules
-import os
-import geopandas as gpd
-import pandas as pd
-import numpy as np
+#!/usr/bin/env python3
+
 import datetime
+import os
 import sys
+
+import numpy as np
+import pandas as pd
 
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
@@ -12,9 +13,6 @@ import odkcentral as odk
 
 
 def downloadFiles(form_url):
-
-    #print("\nDownloading files ....\n")
-
     folder = odk.downloadSubmissions(form_url)
 
     farms = pd.read_csv(f"{folder}/{os.listdir(folder)[0]}")

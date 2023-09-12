@@ -1,10 +1,11 @@
-# import python modules
-import os
-import geopandas as gpd
-import pandas as pd
-import numpy as np
+#!/usr/bin/env python3
+
 import datetime
+import os
 import sys
+
+import numpy as np
+import pandas as pd
 
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
@@ -12,9 +13,7 @@ import odkcentral as odk
 
 
 def downloadFiles(form_url):
-    '''Donwnload csv data ODK data using url'''
-    #print("\nDownloading files ....\n")
-
+    '''Download CSV data from ODK using url'''
     def getBlock(plot):
         if plot < 9:
             return 1

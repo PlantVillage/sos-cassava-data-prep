@@ -1,10 +1,12 @@
-# import python modules
-import os
-import geopandas as gpd
-import pandas as pd
-import numpy as np
+#!/usr/bin/env python3
+
 import datetime
+import os
 import sys
+
+import numpy as np
+import pandas as pd
+
 
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
@@ -25,7 +27,7 @@ def downloadFiles(form_url):
 
     # add merge plots to farms
     farms["PARENT_KEY"] = farms["KEY"]
-    data = farms[["date","map","county","field_id", "PARENT_KEY"]].merge(plots, on="PARENT_KEY")
+    data = farms[["date", "map", "county", "field_id", "PARENT_KEY"]].merge(plots, on="PARENT_KEY")
 
     # merge plants to plots and farms
     data["PARENT_KEY"] = data["KEY"]
@@ -33,8 +35,8 @@ def downloadFiles(form_url):
     
     return data
 
-def addEcologicalZones(data):
 
+def addEcologicalZones(data):
     '''
     Add agro-ecological zone info to data based on farm_id
     '''
