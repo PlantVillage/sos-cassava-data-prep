@@ -7,6 +7,7 @@ import sys
 import numpy as np
 import pandas as pd
 
+from common import days_after_planting, standardize_farm_id
 
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
@@ -28,7 +29,6 @@ def downloadFiles(form_url):
     data = data[data["ReviewState"] != 'hasIssues'] 
 
     return data # return merged data, where each row is data for a plot
-
 
 
 def renameColumns(data):
@@ -188,7 +188,7 @@ def preProcessFarmData(data):
     # enable the date format
     data['date']= pd.to_datetime(data['date'])
 
-    data["farm_id"] = data.apply(lambda x: getUniqueFarmID(x["county"],x["field_id"]), axis=1)
+    data["farm_id"] = data.apply(lambda x: getUniqueFarmID(x["county"], x["field_id"]), axis=1)
 
     # rename columns 
     data = renameColumns(data)
@@ -200,6 +200,7 @@ def farmVistSurvey(data):
     processed_data = preProcessFarmData(data) # preprocess data
     processed_data.to_csv("output/cassava_sos_farm_visit_survey.csv")
     return processed_data
+
 
 def preProcessPlotData(data):
     plot_col_base = [
@@ -221,7 +222,8 @@ def preProcessPlotData(data):
     
     data = data[data["experimental_data-plot_collection"]== 'Yes']
 
-    data["PARENT_KEY"] = data["KEY"]; data["plot_number"] = np.arange(len(data))
+    data["PARENT_KEY"] = data["KEY"]
+    data["plot_number"] = np.arange(len(data))
 
     # loop through the rows using iterrows()
     data2 = pd.DataFrame()
@@ -256,12 +258,9 @@ def preProcessPlotData(data):
 def addSurveyVersion(dt):
     planting_date = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
-    def standardizeFarmID(farm_id):
-        return farm_id.lower()
-
     # standardize ID
-    dt["farm_id"] =dt["farm_id"].apply(standardizeFarmID)
-    planting_date["farm_id"] = planting_date["farm_id"].apply(standardizeFarmID)
+    dt["farm_id"] = dt["farm_id"].apply(standardize_farm_id)
+    planting_date["farm_id"] = planting_date["farm_id"].apply(standardize_farm_id)
 
     dt1 = planting_date[["farm_id", "planting_date"]].merge(dt, on="farm_id")
 
@@ -269,22 +268,20 @@ def addSurveyVersion(dt):
     dt1["planting_date"] = pd.to_datetime(dt1["planting_date"])
     dt1["survey_date"] = pd.to_datetime(dt1["date"])
 
-    def getDAP(survey_date, planting_date):
-        return (survey_date - planting_date).days
+    dt1["DAP"] = \
+        dt1.apply(lambda x: days_after_planting(x["survey_date"], x["planting_date"]), axis=1)
 
-    dt1["DAP"] = dt1.apply(lambda x: getDAP(x["survey_date"], x["planting_date"]), axis=1)
-
-    def getVersion(DAP):
-        if DAP in np.arange(41,51):
+    def get_version(days_after_planting: int) -> str:
+        if days_after_planting in np.arange(41, 51):
             return "45_DAP"
-        elif DAP in np.arange(55,66):
+        elif days_after_planting in np.arange(55, 66):
             return "60_DAP"
-        elif DAP in np.arange(70,81):
+        elif days_after_planting in np.arange(70, 81):
             return "75_DAP"
-        elif DAP in np.arange(85,96):
+        elif days_after_planting in np.arange(85, 96):
             return "90_DAP"
     
-    dt1["survey_version"] = dt1["DAP"].apply(getVersion)
+    dt1["survey_version"] = dt1["DAP"].apply(get_version)
 
     return dt1
 
@@ -430,13 +427,14 @@ def farmPlotVisitSurvey(data):
     data = data.drop(plot_columns, axis=1)
 
     # merge plot data with farm
-    data["PARENT_KEY"] = data["KEY"]; data = data.merge(expanded_data, on="PARENT_KEY")
+    data["PARENT_KEY"] = data["KEY"]
+    data = data.merge(expanded_data, on="PARENT_KEY")
 
     # add farm_Id 
     farm = pd.read_csv("output/cassava_sos_farm_visit_survey.csv")
     data1 = farm[["KEY", "farm_id"]].merge(data)
 
-    ## survey version ###
+    # survey version
     data2 = addSurveyVersion(data1)
 
     data2.to_csv("output/cassava_sos_farm_visit_plot_survey.csv")

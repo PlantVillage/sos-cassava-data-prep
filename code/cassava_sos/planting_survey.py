@@ -58,7 +58,7 @@ def preProcessData(data):
     # change county_name column
     data["county"] = data["county_name"]
 
-    data["farm_id"] = data.apply(lambda x: getUniqueFarmID(x["county"],x["field_id"]), axis=1)
+    data["farm_id"] = data.apply(lambda x: getUniqueFarmID(x["county"], x["field_id"]), axis=1)
 
     # add agroEcologicalZones
     data = addAgroEcologicalZones(data)
@@ -66,11 +66,10 @@ def preProcessData(data):
     return data
 
 
-
 def main():
     form_url = "https://opendatakit.plantvillage.psu.edu/v1/projects/265/forms/Cassava-SOS-Planting-Report/"
     data = downloadFiles(form_url)
-    processed_data = preProcessData(data) # preprocess data
+    processed_data = preProcessData(data)
     processed_data.to_csv("output/cassava_sos_planting_survey.csv")
 
 

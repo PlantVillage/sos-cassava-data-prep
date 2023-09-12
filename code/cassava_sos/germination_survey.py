@@ -7,6 +7,8 @@ import sys
 import numpy as np
 import pandas as pd
 
+from common import days_after_planting, standardize_farm_id
+
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
 import odkcentral as odk
@@ -21,7 +23,8 @@ def downloadFiles(form_url):
     data2_path = f"{folder}/{os.listdir(folder)[1]}"
 
     # load data
-    data2 = pd.read_csv(data1_path); data1 = pd.read_csv(data2_path)
+    data2 = pd.read_csv(data1_path)
+    data1 = pd.read_csv(data2_path)
 
     # remove rejected and has issues surveys
     data1 = data1[data1["ReviewState"] != 'rejected']
@@ -33,21 +36,14 @@ def downloadFiles(form_url):
 
     return data3 # return merged data, where each row is data for a plot
 
+
 def addGerminationVersionInfo(data):
-    
-    def standardizeFarmID(farm_id):
-        return farm_id.lower()
-    
-    def getDAP(survey_date, planting_date):
-        return (survey_date - planting_date).days
-    
-    def getVersion(DAP, county):
-        #['Homabay', 'Bungoma', 'Busia', 'migori', 'Baringo', 'Kilifi', 'Siaya']
+    def getVersion(DAP: int, county: str) -> int:
         if county == "migori":
             if DAP <= 25:
                 return 1
             return 2
-        elif county == "Homabay" or county == "Busia" or county == "Baringo" or county == "Kilifi" or county == "Bungoma":
+        elif county in ["Homabay", "Busia", "Baringo", "Kilifi", "Bungoma"]:
             if DAP <= 15:
                 return 1
             return 2
@@ -64,15 +60,18 @@ def addGerminationVersionInfo(data):
         planting_date = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
     # standardize ID
-    data["farm_id"] =data["farm_id"].apply(standardizeFarmID); planting_date["farm_id"] = planting_date["farm_id"].apply(standardizeFarmID)
+    data["farm_id"] = data["farm_id"].apply(standardize_farm_id)
+    planting_date["farm_id"] = planting_date["farm_id"].apply(standardize_farm_id)
 
     data = planting_date[["farm_id", "planting_date"]].merge(data, on="farm_id")
 
     # date format surveys 
-    data["planting_date"] = pd.to_datetime(data["planting_date"]); data["survey_date"] = pd.to_datetime(data["date"])
+    data["planting_date"] = pd.to_datetime(data["planting_date"])
+    data["survey_date"] = pd.to_datetime(data["date"])
 
     # get Days after planting for which all the surveys were done
-    data["DAP"] = data.apply(lambda x: getDAP(x["survey_date"], x["planting_date"]), axis=1)
+    data["DAP"] =\
+        data.apply(lambda x: days_after_planting(x["survey_date"], x["planting_date"]), axis=1)
 
     # add survey version info
     data["survey_version"] = data.apply(lambda x: getVersion(x["DAP"], x["county"]), axis=1)
@@ -83,30 +82,34 @@ def addGerminationVersionInfo(data):
 def preProcessData(data):
     # generate farm id
     def getUniqueFarmID(county, field_id):
-        if field_id < 10:
-            return f"{county}:0{field_id}"
+        return f"{county}:{field_id:02}"
 
-        return f"{county}:{field_id}"
-
-    data["farm_id"] = data.apply(lambda x: getUniqueFarmID(x["county"],x["field_id"]), axis=1)
+    data["farm_id"] = data.apply(lambda x: getUniqueFarmID(x["county"], x["field_id"]), axis=1)
 
     # germination metrics
-    data["germination_rate"] = data["germination_num"]/36; data["germination_percent"] = data["germination_rate"] * 100
+    data["germination_rate"] = data["germination_num"] / 36
+    data["germination_percent"] = data["germination_rate"] * 100
 
-    ### add survey version info 
+    # add survey version info 
     data = addGerminationVersionInfo(data)
 
     # reduce the columns 
-    filter_cols = ['block','plot','treatment','biochar_rate','cassav_variety','germination_num','erosion','holes_affected_by_erosion','termites','holes_affected','SubmissionDate','date','county','field_id','location-Latitude','location-Longitude','location-Altitude','location-Accuracy','farm_id','survey_version','germination_percent']
+    filter_cols = [
+        'block', 'plot', 'treatment', 'biochar_rate', 'cassav_variety',
+        'germination_num', 'erosion', 'holes_affected_by_erosion',
+        'termites', 'holes_affected', 'SubmissionDate', 'date', 'county',
+        'field_id', 'location-Latitude', 'location-Longitude',
+        'location-Altitude', 'location-Accuracy', 'farm_id',
+        'survey_version', 'germination_percent'
+    ]
     data = data[filter_cols]
-
     return data
 
 
 def main():
     form_url = "https://opendatakit.plantvillage.psu.edu/v1/projects/265/forms/Cassava-SOS-Germination-Survey/"
     data = downloadFiles(form_url)
-    processed_data = preProcessData(data) # preprocess data
+    processed_data = preProcessData(data)
     processed_data.to_csv("output/cassava_sos_germination_survey.csv")
 
 
