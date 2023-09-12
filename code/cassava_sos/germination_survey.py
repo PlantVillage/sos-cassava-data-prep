@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-from common import days_after_planting, standardize_farm_id
+from common import days_after_planting, standardize_farm_id, unique_farm_id
 
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
@@ -80,11 +80,8 @@ def addGerminationVersionInfo(data):
 
 
 def preProcessData(data):
-    # generate farm id
-    def getUniqueFarmID(county, field_id):
-        return f"{county}:{field_id:02}"
-
-    data["farm_id"] = data.apply(lambda x: getUniqueFarmID(x["county"], x["field_id"]), axis=1)
+    data["farm_id"] =\
+        data.apply(lambda x: unique_farm_id(x["county"], x["field_id"]), axis=1)
 
     # germination metrics
     data["germination_rate"] = data["germination_num"] / 36

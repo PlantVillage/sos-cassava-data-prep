@@ -8,6 +8,8 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
+from common import unique_farm_id
+
 
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
@@ -33,7 +35,6 @@ def downloadFiles(form_url):
 
 
 def addAgroEcologicalZones(data):
-    # Read shapefile
     kenya_aez = gpd.read_file("input/kenya_aez/Kenya_AgroEcolZones.shp")
 
     gdf = gpd.GeoDataFrame( data, geometry= gpd.points_from_xy(data['location-Longitude'], data['location-Latitude']))
@@ -45,24 +46,12 @@ def addAgroEcologicalZones(data):
     
 
 def preProcessData(data):
-    # generate farm id
-    def getUniqueFarmID(county, field_id):
-        if field_id < 10:
-            return f"{county}:0{field_id}"
-
-        return f"{county}:{field_id}"
-    
-    # enable the date format
     data['planting_date']= pd.to_datetime(data['planting_date'])
-
-    # change county_name column
     data["county"] = data["county_name"]
+    data["farm_id"] =\
+        data.apply(lambda x: unique_farm_id(x["county"], x["field_id"]), axis=1)
 
-    data["farm_id"] = data.apply(lambda x: getUniqueFarmID(x["county"], x["field_id"]), axis=1)
-
-    # add agroEcologicalZones
     data = addAgroEcologicalZones(data)
-
     return data
 
 

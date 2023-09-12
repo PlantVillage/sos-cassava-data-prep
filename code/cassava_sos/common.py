@@ -27,3 +27,8 @@ def days_after_planting(survey_date, planting_date) -> int:
 def standardize_farm_id(farm_id: str) -> str:
     """Standardize the farm ID to lower case"""
     return farm_id.lower()
+
+
+def unique_farm_id(county: str, field_id: int) -> str:
+    """Generate a unique ID for the farm"""
+    return f"{county}:{field_id:02}"

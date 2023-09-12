@@ -7,7 +7,7 @@ import sys
 import numpy as np
 import pandas as pd
 
-from common import days_after_planting, standardize_farm_id
+from common import days_after_planting, standardize_farm_id, unique_farm_id
 
 # import odkcentral
 sys.path.insert(0, "module") # relative path to the module folder
@@ -174,30 +174,16 @@ def renameColumns(data):
 
     return data
 
-def preProcessFarmData(data):
-    # generate farm id
-    def getUniqueFarmID(county, field_id):
-        try:
-            if field_id < 10:
-                return f"{county.lower()}:0{int(field_id)}"
-
-            return f"{county.lower()}:{int(field_id)}"
-        except:
-            return "Unknown"
-    
-    # enable the date format
+def preProcessFarmData(data):  
     data['date']= pd.to_datetime(data['date'])
-
-    data["farm_id"] = data.apply(lambda x: getUniqueFarmID(x["county"], x["field_id"]), axis=1)
-
-    # rename columns 
+    data["farm_id"] =\
+        data.apply(lambda x: unique_farm_id(x["county"], x["field_id"]), axis=1)
     data = renameColumns(data)
-
     return data
 
 
 def farmVistSurvey(data):
-    processed_data = preProcessFarmData(data) # preprocess data
+    processed_data = preProcessFarmData(data)
     processed_data.to_csv("output/cassava_sos_farm_visit_survey.csv")
     return processed_data
 
@@ -220,19 +206,18 @@ def preProcessPlotData(data):
             return "plot_number"
         return col.replace(str(index), "")
     
-    data = data[data["experimental_data-plot_collection"]== 'Yes']
+    data = data[data["experimental_data-plot_collection"] == 'Yes']
 
     data["PARENT_KEY"] = data["KEY"]
     data["plot_number"] = np.arange(len(data))
 
-    # loop through the rows using iterrows()
     data2 = pd.DataFrame()
 
     for index, row in data.iterrows():
         for i in range(1,17):
             if i == 1:
                 temp_df = row[plot_col_base + ["PARENT_KEY"]]
-                temp_df["plot_number"] = 1 # chnage plot number
+                temp_df["plot_number"] = 1 # change plot number
                 try:
                     data2 = data2.append(temp_df)
                 except:
@@ -244,7 +229,7 @@ def preProcessPlotData(data):
                 temp_df = row[cols]
                 replace_dict = {}
                 for col in cols:
-                    replace_dict[col] = getColBase(col,i)
+                    replace_dict[col] = getColBase(col, i)
                 temp_df = temp_df.rename(replace_dict)
                 temp_df["plot_number"] = i
                 try:
