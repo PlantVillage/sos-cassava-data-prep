@@ -8,15 +8,9 @@ import numpy as np
 import pandas as pd
 
 from common import farm_id, farm_num_id
-
-# import odkcentral
-sys.path.insert(0, "module") # relative path to the module folder
 import odkcentral as odk
 
 def downloadFiles(form_url):
-
-    #print("\nDownloading files ....\n")
-
     folder = odk.downloadSubmissions(form_url)
 
     plots = pd.read_csv(f"{folder}/{os.listdir(folder)[0]}")
@@ -38,14 +32,12 @@ def downloadFiles(form_url):
 
 
 def addEcologicalZones(data):
-    '''
-    Add agro-ecological zone info to data based on farm_id
-    '''
+    """Add agro-ecological zone info to data based on farm_id"""
     try:
         # Add Agro-Ecological Zone Information
         df = pd.read_csv("output/cassava_sos_planting_survey.csv")
     except:
-        os.system("python code/cassava_sos/planting_survey.py")
+        os.system("python3 planting_survey.py")
         df = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
     df["num_id"] = df["farm_id"].apply(farm_num_id)

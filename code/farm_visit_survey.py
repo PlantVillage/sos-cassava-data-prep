@@ -8,20 +8,12 @@ import numpy as np
 import pandas as pd
 
 from common import days_after_planting, standardize_farm_id, unique_farm_id
-
-# import odkcentral
-sys.path.insert(0, "module") # relative path to the module folder
 import odkcentral as odk
 
 
-# download odk central files
 def downloadFiles(form_url):
     folder = odk.downloadSubmissions(form_url)
-
-    # set path
     path = f"{folder}/{os.listdir(folder)[0]}"
-
-    # load data
     data = pd.read_csv(path)
 
     # remove rejected and has issues surveys

@@ -8,14 +8,11 @@ import numpy as np
 import pandas as pd
 
 from common import farm_id, farm_num_id
-
-# import odkcentral
-sys.path.insert(0, "module") # relative path to the module folder
 import odkcentral as odk
 
 
 def downloadFiles(form_url):
-    '''Download CSV data from ODK using url'''
+    """Download CSV data from ODK using url"""
     def getBlock(plot):
         if plot < 9:
             return 1
@@ -36,7 +33,7 @@ def downloadFiles(form_url):
 
     # merge plots to farms
     farms["PARENT_KEY"] = farms["KEY"]
-    data = farms[["date","map","county","farm_id", "PARENT_KEY"]].merge(plots, on="PARENT_KEY")
+    data = farms[["date", "map", "county", "farm_id", "PARENT_KEY"]].merge(plots, on="PARENT_KEY")
 
     # Add block information 
     data["block"] = data.number.apply(getBlock)
@@ -50,14 +47,12 @@ def downloadFiles(form_url):
 
 
 def addEcologicalZones(data):
-    '''
-    Add agro-ecological zone info to data based on farm_id
-    '''
+    """Add agro-ecological zone info to data based on farm_id"""
     try:
         # Add Agro-Ecological Zone Information
         df = pd.read_csv("output/cassava_sos_planting_survey.csv")
     except:
-        os.system("python code/cassava_sos/planting_survey.py")
+        os.system("python3 planting_survey.py")
         df = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
     df["num_id"] = df["farm_id"].apply(farm_num_id)
@@ -100,44 +95,9 @@ def addEcologicalZones(data):
 
 
 
-def preProcessData(data):
-
-    #print("\nProcessing files ....\n")
-
-    # Create Farm ID
-    def getFarmID(county, id):
-        if "Baringo" in county:
-            if id < 10:
-                return f"BAR:0{id}"
-            return f"BAR:{id}"
-        elif "Siaya" in county:
-            if id < 10:
-                return f"SIA:0{id}"
-            return f"SIA:{id}"
-        elif "Homabay" in county:
-            if id < 10:
-                return f"HOM:0{id}"
-            return f"HOM:{id}"
-        elif "Bungoma" in county:
-            if id < 10:
-                return f"BUN:0{id}"
-            return f"BUN:{id}"
-        elif "Busia" in county:
-            if id < 10:
-                return f"BUS:0{id}"
-            return f"BUS:{id}"
-        elif "Migori" in county:
-            if id < 10:
-                return f"MIG:0{id}"
-            return f"MIG:{id}"
-        elif "Kilifi" in county:
-            if id < 10:
-                return f"KIL:0{id}"
-            return f"KIL:{id}"
-        
-    # add farm id information to data
+def preProcessData(data):    
     data["field_id"] = data["farm_id"]
-    data["farm_id"] = data.apply(lambda x: getFarmID(x["county"], x["farm_id"]), axis=1)
+    data["farm_id"] = data.apply(lambda x: farm_id(x["county"], x["farm_id"]), axis=1)
     
     return addEcologicalZones(data)
 

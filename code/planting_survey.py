@@ -9,21 +9,12 @@ import numpy as np
 import pandas as pd
 
 from common import unique_farm_id
-
-
-# import odkcentral
-sys.path.insert(0, "module") # relative path to the module folder
 import odkcentral as odk
 
 
-# download odk central files
 def downloadFiles(form_url):
     folder = odk.downloadSubmissions(form_url)
-
-    # set path
     path = f"{folder}/{os.listdir(folder)[1]}"
-
-    # load data
     data = pd.read_csv(path)
 
     # remove rejected and has issues surveys
@@ -31,7 +22,6 @@ def downloadFiles(form_url):
     data = data[data["ReviewState"] != 'hasIssues'] 
 
     return data # return merged data, where each row is data for a plot
-
 
 
 def addAgroEcologicalZones(data):

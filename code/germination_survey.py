@@ -8,9 +8,6 @@ import numpy as np
 import pandas as pd
 
 from common import days_after_planting, standardize_farm_id, unique_farm_id
-
-# import odkcentral
-sys.path.insert(0, "module") # relative path to the module folder
 import odkcentral as odk
 
 
@@ -32,7 +29,7 @@ def downloadFiles(form_url):
 
     # merge data1 and data2 (i.e., the repeat or loop csv file)
     data1["PARENT_KEY"] = data1["KEY"]
-    data3 =  data2.merge(data1, on="PARENT_KEY")
+    data3 = data2.merge(data1, on="PARENT_KEY")
 
     return data3 # return merged data, where each row is data for a plot
 
@@ -56,7 +53,7 @@ def addGerminationVersionInfo(data):
     try:
         planting_date = pd.read_csv("output/cassava_sos_planting_survey.csv")
     except:
-        os.system("python3 code/cassava_sos/planting_survey.py")
+        os.system("python3 planting_survey.py")
         planting_date = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
     # standardize ID
