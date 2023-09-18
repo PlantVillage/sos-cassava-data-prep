@@ -61,7 +61,7 @@ def main():
     form_url = "https://opendatakit.plantvillage.psu.edu/v1/projects/265/forms/Whitefly-Image-Data-Collection/"
     data = downloadFiles(form_url)
     processed_data = preProcessData(data)
-    processed_data.to_csv("output/cassava_sos_whitefly_monitoring.csv")
+    processed_data.to_csv("output/cassava_sos_whitefly_monitoring.csv", index=False)
 
 
 if __name__ == "__main__":

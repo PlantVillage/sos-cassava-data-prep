@@ -100,7 +100,7 @@ def main():
     form_url = "https://opendatakit.plantvillage.psu.edu/v1/projects/265/forms/Cassava-SOS-Germination-Survey/"
     data = downloadFiles(form_url)
     processed_data = preProcessData(data)
-    processed_data.to_csv("output/cassava_sos_germination_survey.csv")
+    processed_data.to_csv("output/cassava_sos_germination_survey.csv", index=False)
 
 
 if __name__ == "__main__":

@@ -171,7 +171,7 @@ def preProcessFarmData(data):
 
 def farmVistSurvey(data):
     processed_data = preProcessFarmData(data)
-    processed_data.to_csv("output/cassava_sos_farm_visit_survey.csv")
+    processed_data.to_csv("output/cassava_sos_farm_visit_survey.csv", index=False)
     return processed_data
 
 
@@ -409,7 +409,7 @@ def farmPlotVisitSurvey(data):
     # survey version
     data2 = addSurveyVersion(data1)
 
-    data2.to_csv("output/cassava_sos_farm_visit_plot_survey.csv")
+    data2.to_csv("output/cassava_sos_farm_visit_plot_survey.csv", index=False)
 
 
 def main():

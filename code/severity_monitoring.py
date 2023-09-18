@@ -55,7 +55,7 @@ def main():
     form_url = "https://opendatakit.plantvillage.psu.edu/v1/projects/265/forms/Cassava-SOS-Image-Evaluation-Survey-Form/"
     data = downloadFiles(form_url)
     processed_data = preProcessData(data)
-    processed_data.to_csv("output/cassava_sos_severity_monitoring.csv")
+    processed_data.to_csv("output/cassava_sos_severity_monitoring.csv", index=False)
 
 
 if __name__ == "__main__":
