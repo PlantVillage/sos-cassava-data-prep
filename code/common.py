@@ -32,6 +32,7 @@ def standardize_farm_id(farm_id: str) -> str:
 def unique_farm_id(county: str, field_id: int) -> str:
     """Generate a unique ID for the farm"""
     try:
+        field_id = int(field_id)
         return f"{county.lower()}:{field_id:02}"
     except:
         return "Unknown"

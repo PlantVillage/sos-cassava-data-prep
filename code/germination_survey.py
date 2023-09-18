@@ -13,16 +13,15 @@ import odkcentral as odk
 
 
 # download odk central files
-def downloadFiles(form_url):
+def downloadFiles(form_url: str) -> pd.DataFrame:
     folder = odk.downloadSubmissions(form_url)
 
-    # set path
-    data1_path = f"{folder}/{os.listdir(folder)[0]}"
-    data2_path = f"{folder}/{os.listdir(folder)[1]}"
+    data1_path = f"{folder}/Cassava-SOS-Germination-Survey.csv"
+    data2_path = f"{folder}/Cassava-SOS-Germination-Survey-plot_survey.csv"
 
     # load data
-    data2 = pd.read_csv(data1_path)
-    data1 = pd.read_csv(data2_path)
+    data1 = pd.read_csv(data1_path)
+    data2 = pd.read_csv(data2_path)
 
     # remove rejected and has issues surveys
     data1 = data1[data1["ReviewState"] != 'rejected']
@@ -35,17 +34,18 @@ def downloadFiles(form_url):
     return data3 # return merged data, where each row is data for a plot
 
 
-def addGerminationVersionInfo(data):
+def addGerminationVersionInfo(data: pd.DataFrame) -> pd.DataFrame:
     def getVersion(DAP: int, county: str) -> int:
+        county = county.lower()
         if county == "migori":
             if DAP <= 25:
                 return 1
             return 2
-        elif county in ["Homabay", "Busia", "Baringo", "Kilifi", "Bungoma"]:
+        elif county in ["homabay", "busia", "baringo", "kilifi", "bungoma"]:
             if DAP <= 15:
                 return 1
             return 2
-        elif county == "Siaya":
+        elif county == "siaya":
             if DAP <= 16:
                 return 1
             return 2

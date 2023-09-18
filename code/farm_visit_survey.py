@@ -13,14 +13,9 @@ import odkcentral as odk
 
 def downloadFiles(form_url):
     folder = odk.downloadSubmissions(form_url)
-    path = f"{folder}/{os.listdir(folder)[0]}"
+    path = f"{folder}/Cassava-SOS-Farm-Visit-Survey.csv"
     data = pd.read_csv(path)
-
-    # remove rejected and has issues surveys
-    data = data[data["ReviewState"] != 'rejected']
-    data = data[data["ReviewState"] != 'hasIssues'] 
-
-    return data # return merged data, where each row is data for a plot
+    return data
 
 
 def renameColumns(data):
@@ -206,7 +201,7 @@ def preProcessPlotData(data):
     data2 = pd.DataFrame()
 
     for index, row in data.iterrows():
-        for i in range(1,17):
+        for i in range(1, 17):
             if i == 1:
                 temp_df = row[plot_col_base + ["PARENT_KEY"]]
                 temp_df["plot_number"] = 1 # change plot number
