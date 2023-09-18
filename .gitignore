@@ -1,4 +1,5 @@
 venv
+.DS_Store
 odk_temp_download/*
 test
 output/*
