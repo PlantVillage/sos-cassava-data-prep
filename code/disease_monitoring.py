@@ -8,18 +8,15 @@ import sys
 import numpy as np
 import pandas as pd
 
-from common import farm_id, farm_num_id
+from common import farm_id, farm_num_id, load_aez
 import odkcentral as odk
 
-def downloadFiles(form_url):
-    folder = odk.downloadSubmissions(form_url)
+def downloadFiles(form_url: str) -> pd.DataFrame:
+    folder = odk.download_submissions(form_url)
 
-    plots = pd.read_csv(f"{folder}/{os.listdir(folder)[0]}")
-    plants = pd.read_csv(f"{folder}/{os.listdir(folder)[1]}")
-    farms = pd.read_csv(f"{folder}/{os.listdir(folder)[2]}")
-
-    farms = farms[farms["ReviewState"] != "hasIssues"]
-    farms = farms[farms["ReviewState"] != "rejected"]
+    plots = pd.read_csv(folder / "Cassava-SOS-Disease-Evaluation-Score-Survey-Form-plot_survey.csv")
+    severity = pd.read_csv(folder / "Cassava-SOS-Disease-Evaluation-Score-Survey-Form-severity.csv")
+    farms = pd.read_csv(folder / "Cassava-SOS-Disease-Evaluation-Score-Survey-Form.csv")
 
     # add merge plots to farms
     farms["PARENT_KEY"] = farms["KEY"]
@@ -27,34 +24,13 @@ def downloadFiles(form_url):
 
     # merge plants to plots and farms
     data["PARENT_KEY"] = data["KEY"]
-    data = data.merge(plants, on="PARENT_KEY")
+    data = data.merge(severity, on="PARENT_KEY")
     
     return data
 
 
-def addEcologicalZones(data):
-    """Add agro-ecological zone info to data based on farm_id"""
-    try:
-        # Add Agro-Ecological Zone Information
-        df = pd.read_csv("output/cassava_sos_planting_survey.csv")
-    except:
-        subprocess.run(["python3", "planting_survey.py"], check=True)
-        df = pd.read_csv("output/cassava_sos_planting_survey.csv")
-
-    df["num_id"] = df["farm_id"].apply(farm_num_id)
-    df["farm_id"] = df.apply(lambda x: farm_id(x['farm_id'], x['num_id']), axis=1)
-
-    # get zone data from planting report survey
-    aez = {}
-    for id in df["farm_id"].unique().tolist():
-        zone = df.query(f" farm_id == '{id}'")["zones"].unique().tolist()[0]
-        aez[id] = zone
-
-    # function to return aez for farms
-    def getAEZ(id):
-        return aez[id]
-
-    data["zones"] = data["farm_id"].apply(getAEZ)
+def add_ecological_zones(data: pd.DataFrame) -> pd.DataFrame:
+    data = load_aez(data)
 
     return data[[
         'date',
@@ -82,7 +58,6 @@ def addEcologicalZones(data):
         'biochar',
         'zones'
     ]]
-
 
 
 def preProcessData(data):
@@ -123,13 +98,13 @@ def preProcessData(data):
     data["cbsd_incidence_out"] = \
         (data["cmd_incidence_out"] / (data["stand_count"] - data["total_net_count"])) * 100
 
-    return addEcologicalZones(data)
+    return add_ecological_zones(data)
 
 
 def main():
     form_url = "https://opendatakit.plantvillage.psu.edu/v1/projects/265/forms/Cassava-SOS-Disease-Evaluation-Score-Survey-Form/"
     data = downloadFiles(form_url)
-    processed_data = preProcessData(data) # preprocess data
+    processed_data = preProcessData(data)
     processed_data.to_csv("output/cassava_sos_disease_monitoring.csv")
 
 

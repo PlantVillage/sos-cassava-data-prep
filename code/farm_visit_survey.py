@@ -11,14 +11,14 @@ from common import days_after_planting, standardize_farm_id, unique_farm_id
 import odkcentral as odk
 
 
-def downloadFiles(form_url):
-    folder = odk.downloadSubmissions(form_url)
-    path = f"{folder}/Cassava-SOS-Farm-Visit-Survey.csv"
+def downloadFiles(form_url: str) -> pd.DataFrame:
+    folder = odk.download_submissions(form_url)
+    path = folder / "Cassava-SOS-Farm-Visit-Survey.csv"
     data = pd.read_csv(path)
     return data
 
 
-def renameColumns(data):
+def renameColumns(data: pd.DataFrame) -> pd.DataFrame:
     cols = [
         'experimental_data-plot_data-experimental_field-termite_number',
         'experimental_data-plot_data-experimental_field-soil_number',
@@ -162,7 +162,7 @@ def renameColumns(data):
     return data
 
 def preProcessFarmData(data):  
-    data['date']= pd.to_datetime(data['date'])
+    data['date'] = pd.to_datetime(data['date'])
     data["farm_id"] =\
         data.apply(lambda x: unique_farm_id(x["county"], x["field_id"]), axis=1)
     data = renameColumns(data)
@@ -393,7 +393,7 @@ def farmPlotVisitSurvey(data):
     expanded_data = preProcessPlotData(data)
 
     # filter out data with survey with plot data
-    data = data[data["experimental_data-plot_collection"]== 'Yes']
+    data = data[data["experimental_data-plot_collection"] == 'Yes']
 
     # remove extra columns
     data = data.drop(plot_columns, axis=1)

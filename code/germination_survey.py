@@ -12,20 +12,15 @@ from common import days_after_planting, standardize_farm_id, unique_farm_id
 import odkcentral as odk
 
 
-# download odk central files
 def downloadFiles(form_url: str) -> pd.DataFrame:
-    folder = odk.downloadSubmissions(form_url)
+    folder = odk.download_submissions(form_url)
 
-    data1_path = f"{folder}/Cassava-SOS-Germination-Survey.csv"
-    data2_path = f"{folder}/Cassava-SOS-Germination-Survey-plot_survey.csv"
+    data1_path = folder/ "Cassava-SOS-Germination-Survey.csv"
+    data2_path = folder / "Cassava-SOS-Germination-Survey-plot_survey.csv"
 
     # load data
     data1 = pd.read_csv(data1_path)
     data2 = pd.read_csv(data2_path)
-
-    # remove rejected and has issues surveys
-    data1 = data1[data1["ReviewState"] != 'rejected']
-    data1 = data1[data1["ReviewState"] != 'hasIssues'] 
 
     # merge data1 and data2 (i.e., the repeat or loop csv file)
     data1["PARENT_KEY"] = data1["KEY"]

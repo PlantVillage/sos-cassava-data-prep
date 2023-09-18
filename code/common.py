@@ -1,3 +1,5 @@
+import pandas as pd
+
 def farm_id(county: str, id: int) -> str:
     """Return a standardized Farm ID"""
     county_abbreviations = {
@@ -36,3 +38,24 @@ def unique_farm_id(county: str, field_id: int) -> str:
         return f"{county.lower()}:{field_id:02}"
     except:
         return "Unknown"
+
+
+def load_aez(data: pd.DataFrame) -> pd.DataFrame:
+    """Load Agroecological zones for each farm."""
+    try:
+        df = pd.read_csv("output/cassava_sos_planting_survey.csv")
+    except:
+        subprocess.run(["python3", "./planting_survey.py"], check=True)
+        df = pd.read_csv("output/cassava_sos_planting_survey.csv")
+
+    df["num_id"] = df["farm_id"].apply(farm_num_id)
+    df["farm_id"] = df.apply(lambda x: farm_id(x['county'], x['num_id']), axis=1)
+
+    # get zone data from planting report survey
+    aez = {}
+    for id in df["farm_id"].unique().tolist():
+        zone = df.query(f" farm_id == '{id}'")["zones"].unique().tolist()[0]
+        aez[id] = zone
+    
+    data["zones"] = data["farm_id"].apply(lambda x: aez[x])
+    return data

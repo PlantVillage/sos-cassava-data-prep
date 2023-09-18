@@ -13,8 +13,8 @@ import odkcentral as odk
 
 
 def downloadFiles(form_url: str) -> pd.DataFrame:
-    folder = odk.downloadSubmissions(form_url)
-    path = f"{folder}/Cassava-SOS-Planting-Report.csv"
+    folder = odk.download_submissions(form_url)
+    path = folder / "Cassava-SOS-Planting-Report.csv"
     data = pd.read_csv(path)
     return data
 

@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 import requests
 import sys
 from typing import Optional
@@ -42,24 +43,41 @@ headers = {
 }
 
 
-def downloadSubmissions(form_url: str, headers=headers) -> str:
+def download_submissions(form_url: str, headers=headers) -> Optional[Path]:
+    """
+    Download and decompress the submission zipfile for a form.
+    On success, returns the path to the folder with the CSV files.
+    On error, returns None.
+    """
     download_url = form_url + "submissions.csv.zip"
-    form_file = f'odk_temp_download/{form_url.split("/")[-2]}.zip'
+    
+    base_name = form_url.split("/")[-2]
+    temp_dir = Path('./odk_temp_download')
+    csv_zip_file = temp_dir / f'{base_name}.zip'
+    data_dir = temp_dir / base_name
+    
+    if not temp_dir.exists() and temp_dir.is_dir():
+        temp_dir.mkdir(exist_ok=True)
+
     params = {
         'attachments': False,
         '$filter': "__system/reviewState ne 'rejected' and __system/reviewState ne 'hasIssues'"
     }
+    
     try:
         r = requests.get(download_url, headers=headers, stream=True, params=params)
-        with open(form_file, 'wb') as f:
+        with open(csv_zip_file, 'wb') as f:
             for chunk in r.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
 
-        with zipfile.ZipFile(form_file, "r") as zip_ref:
-            zip_ref.extractall(f"odk_temp_download/{form_url.split('/')[-2]}")
-    except:
-        print("Failed to download new")
-        pass
+        with zipfile.ZipFile(csv_zip_file, "r") as zip_ref:
+            zip_ref.extractall(data_dir)
+        csv_zip_file.unlink(missing_ok=True)
+    except Exception as e:
+        import traceback
+        print(f"Failed to download file: {e}")
+        traceback.print_exc()
+        return None
 
-    return f'odk_temp_download/{form_url.split("/")[-2]}'
+    return data_dir

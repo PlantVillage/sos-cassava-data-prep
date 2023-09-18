@@ -8,20 +8,16 @@ import sys
 import numpy as np
 import pandas as pd
 
-from common import farm_id, farm_num_id
+from common import farm_id, farm_num_id, load_aez
 import odkcentral as odk
 
 
-def downloadFiles(form_url):
-    folder = odk.downloadSubmissions(form_url)
+def downloadFiles(form_url: str) -> pd.DataFrame:
+    folder = odk.download_submissions(form_url)
 
-    farms = pd.read_csv(f"{folder}/{os.listdir(folder)[0]}")
-    plants = pd.read_csv(f"{folder}/{os.listdir(folder)[1]}")
-    plots = pd.read_csv(f"{folder}/{os.listdir(folder)[2]}")
-
-    # filter out rejected and submission with issues
-    farms = farms[farms["ReviewState"] != "hasIssues"]
-    farms = farms[farms["ReviewState"] != "rejected"]
+    farms = pd.read_csv(folder / "Whitefly-Image-Data-Collection.csv")
+    plants = pd.read_csv(folder / "Whitefly-Image-Data-Collection-plant_image.csv")
+    plots = pd.read_csv(folder / "Whitefly-Image-Data-Collection-plot_survey.csv")
 
     # Merge plants, and plot data to farms
 
@@ -35,30 +31,9 @@ def downloadFiles(form_url):
 
     return data
 
-def addEcologicalZones(data):
-    """Add agro-ecological zone info to data based on farm_id"""
-    try:
-        # Add Agro-Ecological Zone Information
-        df = pd.read_csv("output/cassava_sos_planting_survey.csv")
-    except:
-        subprocess.run(["python3", "planting_survey.py"], check=True)
-        df = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
-    df["num_id"] = df["farm_id"].apply(farm_num_id)
-    df["farm_id"] = df.apply(lambda x: farm_id(x['farm_id'], x['num_id']), axis=1)
-
-
-    # get zone data from planting report survey
-    aez = {}
-    for id in df["farm_id"].unique().tolist():
-        zone = df.query(f" farm_id == '{id}'")["zones"].unique().tolist()[0]
-        aez[id] = zone
-
-    # function to return aez for farms
-    def getAEZ(id):
-        return aez[id]
-
-    data["zones"] = data["farm_id"].apply(getAEZ)
+def add_ecological_zones(data: pd.DataFrame) -> pd.DataFrame:
+    data = load_aez(data)
 
     return data[[
         'date',
@@ -77,9 +52,9 @@ def addEcologicalZones(data):
     ]]
 
 
-def preProcessData(data):
+def preProcessData(data: pd.DataFrame) -> pd.DataFrame:
     data["farm_id"] = data.apply(lambda x: farm_id(x["county"], x["field_id"]), axis=1)  
-    return addEcologicalZones(data)
+    return add_ecological_zones(data)
 
 
 def main():
