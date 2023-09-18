@@ -6,7 +6,7 @@ def farm_id(county: str, id: int) -> str:
         "busia": "BUS",
         "homabay": "HOM",
         "kilifi": "KIL",
-        "migori": "MIG"
+        "migori": "MIG",
         "siaya": "SIA",
     }
 
