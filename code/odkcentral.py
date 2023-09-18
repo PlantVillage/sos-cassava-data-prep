@@ -1,29 +1,40 @@
 import json
+import os
 import requests
+import sys
+from typing import Optional
 import zipfile
 
-# Needs a bearer token to interact with the API
-def getBearerToken(url: str, auth: str):
-    headers = {
-      'Content-Type': 'application/json'
-    }
-    r = requests.post(sessions_url, data = json.dumps(auth), headers=headers)
-    return eval(r.text)['token']
+def load_from_env(var_name: str) -> str:
+    """Load a variable from the OS environment."""
+    if not var_name in os.environ:
+        print(f'Error: Environment missing {var_name} variable. Aborting.')
+        sys.exit(1)
+    return os.environ[var_name]
 
 
-# Replace auth with personal authentifications
-file = open('module/credentials.json') # json file with password and username
-auth = json.load(file)
+def odk_authenticate(username: str, password: str) -> Optional[str]:
+    """
+    Try to authenticate to the ODK server and return a session token
+    for bearer authentication.
+    """
+    try:
+        url = "https://opendatakit.plantvillage.psu.edu/v1/sessions"
+        payload = {'email': username, 'password': password}
+        r = requests.post(url, json=payload)
+        if r.ok:
+            return r.json()['token']
+    except HTTPError as http_err:
+        print(f"Authentication error: {http_err}")
+        return None
+    except Exception as e:
+        print(f"Authentication error: {e}")
+        return None
 
-sessions_url = "https://opendatakit.plantvillage.psu.edu/v1/sessions"
+odk_username = load_from_env('ODK_CENTRAL_USER')
+odk_password = load_from_env('ODK_CENTRAL_PASSWORD')
 
-bearerToken = ""
-
-# get tokens
-try:
-    bearerToken = getBearerToken(sessions_url, auth)
-except:
-    print("Unable to establish connection to server")
+bearerToken = odk_authenticate(odk_username, odk_password)
 
 headers = {
   'Content-Type': 'application/json',
@@ -31,7 +42,7 @@ headers = {
 }
 
 
-def downloadSubmissions(form_url, headers=headers) -> str:
+def downloadSubmissions(form_url: str, headers=headers) -> str:
     download_url = form_url + "submissions.csv.zip"
     form_file = f'odk_temp_download/{form_url.split("/")[-2]}.zip'
     params = {
@@ -41,7 +52,7 @@ def downloadSubmissions(form_url, headers=headers) -> str:
     try:
         r = requests.get(download_url, headers=headers, stream=True, params=params)
         with open(form_file, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=512):
+            for chunk in r.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
 

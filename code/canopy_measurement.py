@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import subprocess
 import sys
 
 import numpy as np
@@ -52,7 +53,7 @@ def addEcologicalZones(data):
         # Add Agro-Ecological Zone Information
         df = pd.read_csv("output/cassava_sos_planting_survey.csv")
     except:
-        os.system("python3 planting_survey.py")
+        subprocess.run(["python3", "planting_survey.py"], check=True)
         df = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
     df["num_id"] = df["farm_id"].apply(farm_num_id)

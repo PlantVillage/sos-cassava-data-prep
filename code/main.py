@@ -1,30 +1,36 @@
 #!/usr/bin/env python3
 
-import os 
+
+import subprocess
 
 def main():
     print("Running planting survey...")
-    os.system("python3 planting_survey.py")
+    subprocess.run(["python3", "planting_survey.py"], check=True)
     print("\n\n")
-    print("Running germination survey...")
-    os.system("python3 germination_survey.py")
-    print("\n\n")
-    print("Running farm visit survey...")
-    os.system("python3 farm_visit_survey.py")
-    print("\n\n")
-    print("Running canopy survey...")
-    os.system("python3 canopy_measurement.py")
-    print("\n\n")
-    print("Running disease score survey...")
-    os.system("python3 disease_monitoring.py")
-    print("\n\n")   
-    print("Running severity image survey...")
-    os.system("python3 severity_monitoring.py")
-    print("\n\n")
-    print("Running whitefly survey...")
-    os.system("python3 whitefly_monitoring.py")
     
-
+    print("Running germination survey...")
+    subprocess.run(["python3", "germination_survey.py"], check=True)
+    print("\n\n")
+    
+    print("Running farm visit survey...")
+    subprocess.run(["python3", "farm_visit_survey.py"], check=True)
+    print("\n\n")
+    
+    print("Running canopy survey...")
+    subprocess.run(["python3", "canopy_measurement.py"], check=True)
+    print("\n\n")
+    
+    print("Running disease score survey...")
+    subprocess.run(["python3", "disease_monitoring.py"], check=True)
+    print("\n\n")   
+    
+    print("Running severity image survey...")
+    subprocess.run(["python3", "severity_monitoring.py"], check=True)
+    print("\n\n")
+    
+    print("Running whitefly survey...")
+    subprocess.run(["python3", "whitefly_monitoring.py"], check=True)
+    
 
 if __name__ == "__main__":
     main()

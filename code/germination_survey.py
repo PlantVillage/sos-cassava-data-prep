@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import subprocess
 import sys
 
 import numpy as np
@@ -53,7 +54,7 @@ def addGerminationVersionInfo(data):
     try:
         planting_date = pd.read_csv("output/cassava_sos_planting_survey.csv")
     except:
-        os.system("python3 planting_survey.py")
+        subprocess.run(["python3", "planting_survey.py"], check=True)
         planting_date = pd.read_csv("output/cassava_sos_planting_survey.csv")
 
     # standardize ID
