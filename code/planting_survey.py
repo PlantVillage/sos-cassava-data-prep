@@ -12,22 +12,21 @@ from common import unique_farm_id
 import odkcentral as odk
 
 
-def downloadFiles(form_url):
+def downloadFiles(form_url: str) -> pd.DataFrame:
     folder = odk.downloadSubmissions(form_url)
-    path = f"{folder}/{os.listdir(folder)[1]}"
+    path = f"{folder}/Cassava-SOS-Planting-Report.csv"
     data = pd.read_csv(path)
-
-    # remove rejected and has issues surveys
-    data = data[data["ReviewState"] != 'rejected']
-    data = data[data["ReviewState"] != 'hasIssues'] 
-
-    return data # return merged data, where each row is data for a plot
+    return data
 
 
 def addAgroEcologicalZones(data):
-    kenya_aez = gpd.read_file("input/kenya_aez/Kenya_AgroEcolZones.shp")
+    kenya_aez = gpd.read_file("kenya_aez/Kenya_AgroEcolZones.shp")
 
-    gdf = gpd.GeoDataFrame( data, geometry= gpd.points_from_xy(data['location-Longitude'], data['location-Latitude']))
+    gdf = gpd.GeoDataFrame(
+        data, 
+        geometry=gpd.points_from_xy(data['location-Longitude'], data['location-Latitude']),
+        crs="EPSG:4326"
+    )
 
     # join spatial data with odk data
     data = gpd.sjoin(kenya_aez, gdf)
@@ -35,7 +34,7 @@ def addAgroEcologicalZones(data):
     return data
     
 
-def preProcessData(data):
+def preProcessData(data: pd.DataFrame) -> pd.DataFrame:
     data['planting_date']= pd.to_datetime(data['planting_date'])
     data["county"] = data["county_name"]
     data["farm_id"] =\
@@ -45,7 +44,7 @@ def preProcessData(data):
     return data
 
 
-def main():
+def main() -> None:
     form_url = "https://opendatakit.plantvillage.psu.edu/v1/projects/265/forms/Cassava-SOS-Planting-Report/"
     data = downloadFiles(form_url)
     processed_data = preProcessData(data)
