@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import shutil
 import subprocess
 import sys
 
@@ -28,6 +29,8 @@ def downloadFiles(form_url: str) -> pd.DataFrame:
     # merge plants to plots and farms
     data["PARENT_KEY"] = data["KEY"]
     data = data.merge(plants, on="PARENT_KEY")
+
+    shutil.rmtree(folder)
 
     return data
 

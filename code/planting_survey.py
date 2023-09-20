@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import shutil
 import sys
 
 import geopandas as gpd
@@ -16,6 +17,7 @@ def downloadFiles(form_url: str) -> pd.DataFrame:
     folder = odk.download_submissions(form_url)
     path = folder / "Cassava-SOS-Planting-Report.csv"
     data = pd.read_csv(path)
+    shutil.rmtree(folder)
     return data
 
 

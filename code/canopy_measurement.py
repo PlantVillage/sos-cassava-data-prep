@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import shutil
 import subprocess
 import sys
 
@@ -39,6 +40,8 @@ def downloadFiles(form_url: str) -> pd.DataFrame:
     data["PARENT_KEY"] = data["KEY"]
     data = data.merge(plants, on="PARENT_KEY")
     
+    shutil.rmtree(folder)
+
     # return plant level data
     return data
 

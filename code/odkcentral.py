@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import requests
 import sys
+from tempfile import mkdtemp
 from typing import Optional
 import zipfile
 
@@ -52,12 +53,20 @@ def download_submissions(form_url: str, headers=headers) -> Optional[Path]:
     download_url = form_url + "submissions.csv.zip"
     
     base_name = form_url.split("/")[-2]
-    temp_dir = Path('./odk_temp_download')
+       
+    # we use mkdtemp() instead of the newer TemporaryDirectory()
+    # to prevent the temporary directory from being deleted
+    # when TemporaryDirectory() falls out of scope.
+    temp_dir = Path(mkdtemp())
+    
     csv_zip_file = temp_dir / f'{base_name}.zip'
     data_dir = temp_dir / base_name
     
-    if not temp_dir.exists() and temp_dir.is_dir():
+    if not temp_dir.exists():
         temp_dir.mkdir(exist_ok=True)
+
+    if not data_dir.exists():
+        data_dir.mkdir(exist_ok=True)
 
     params = {
         'attachments': False,

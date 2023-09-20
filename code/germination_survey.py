@@ -2,6 +2,7 @@
 
 import datetime
 import os
+import shutil
 import subprocess
 import sys
 
@@ -26,6 +27,8 @@ def downloadFiles(form_url: str) -> pd.DataFrame:
     data1["PARENT_KEY"] = data1["KEY"]
     data3 = data2.merge(data1, on="PARENT_KEY")
 
+    shutil.rmtree(folder)
+    
     return data3 # return merged data, where each row is data for a plot
 
 

@@ -20,6 +20,4 @@ RUN pip3 install -r ${APP_DIR}/requirements.txt
 COPY code/*.py ${APP_DIR}
 COPY input ${APP_DIR}
 
-RUN mkdir ${APP_DIR}/odk_temp_download
-
 ENTRYPOINT ["./main.py"]
